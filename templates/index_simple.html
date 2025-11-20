@@ -1,0 +1,185 @@
+1<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Credit Card Fraud Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        .form-section h3 {
+            color: #555;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .result {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .valid {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .fraud {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .sample-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .sample-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .sample-btn:hover {
+            background: #218838;
+        }
+        .feature-list {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ Simple Fraud Detection</h1>
+
+        <div class="feature-list">
+            <strong>Using Top 7 Features:</strong> V3, V7, V10, V12, V14, V16, V17, Time, Amount
+        </div>
+
+        <div class="sample-section">
+            <h3>Quick Test Samples:</h3>
+            <p><strong>Valid Sample:</strong> Time: 1, Amount: 149.62, V3: 2.54, V7: 0.24, V10: 0.09, V12: -0.62, V14: -0.31, V16: -0.47, V17: 0.21</p>
+            <p><strong>Fraud Sample:</strong> Time: 406, Amount: 0, V3: -1.61, V7: -2.54, V10: -2.77, V12: -2.90, V14: -4.29, V16: -1.14, V17: -2.83</p>
+            <button class="sample-btn" onclick="loadSample('legitimate')">Load Valid Sample</button>
+            <button class="sample-btn" onclick="loadSample('fraud')">Load Fraud Sample</button>
+        </div>
+
+        <div class="form-section">
+            <h3>Enter Transaction Data:</h3>
+            <form action="/predict" method="POST" id="fraud-form">
+                <div class="input-group">
+                    <input type="number" name="Time" placeholder="Time" step="any" required>
+                    <input type="number" name="Amount" placeholder="Amount" step="any" required>
+                </div>
+                <div class="input-group">
+                    <input type="number" name="V3" placeholder="V3" step="any" required>
+                    <input type="number" name="V7" placeholder="V7" step="any" required>
+                    <input type="number" name="V10" placeholder="V10" step="any" required>
+                </div>
+                <div class="input-group">
+                    <input type="number" name="V12" placeholder="V12" step="any" required>
+                    <input type="number" name="V14" placeholder="V14" step="any" required>
+                </div>
+                <div class="input-group">
+                    <input type="number" name="V16" placeholder="V16" step="any" required>
+                    <input type="number" name="V17" placeholder="V17" step="any" required>
+                </div>
+                <button type="submit">🔍 Predict Fraud</button>
+            </form>
+        </div>
+
+        {% if output %}
+            <div class="result {{ 'fraud' if 'Fraud' in output else 'valid' }}">
+                <h2>{{ output }}</h2>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function loadSample(type) {
+            const samples = {
+                legitimate: {
+                    Time: '1', Amount: '149.62', V3: '2.536347', V7: '0.239599', V10: '0.090794',
+                    V12: '-0.617801', V14: '-0.311169', V16: '-0.470401', V17: '0.207971'
+                },
+                fraud: {
+                    Time: '406', Amount: '0', V3: '-1.609851', V7: '-2.537387', V10: '-2.772272',
+                    V12: '-2.899907', V14: '-4.289254', V16: '-1.140747', V17: '-2.830056'
+                }
+            };
+
+            const form = document.getElementById('fraud-form');
+            Object.keys(samples[type]).forEach(key => {
+                if (form[key]) {
+                    form[key].value = samples[type][key];
+                }
+            });
+        }
+    </script>
+</body>
+</html>
