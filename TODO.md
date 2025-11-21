@@ -1,5 +1,0 @@
-- [x] Update requirements.txt to include flask-cors for CORS support
-- [x] Modify app.py to add CORS, /generate_features endpoint, and update /predict to handle JSON data
-- [x] Update templates/index.html to implement minimal UI with Time and Amount inputs, Generate Features button, Predict Fraud button, and JavaScript for API calls
-- [ ] Install updated dependencies
-- [ ] Test the Flask app by running it and verifying the new functionality
