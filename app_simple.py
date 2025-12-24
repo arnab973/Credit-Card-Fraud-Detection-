@@ -5,7 +5,7 @@ import numpy as np
 app = Flask(__name__)
 
 # Load the 7-feature model
-model = pickle.load(open("model_7.pkl", "rb"))
+model = pickle.load(open("model_simple.pkl", "rb"))
 
 @app.route('/')
 def home():
