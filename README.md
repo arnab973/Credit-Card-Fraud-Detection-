@@ -1,6 +1,7 @@
 # Credit Card Fraud Detection System
 
 This is a modern Flask-based web application and Machine Learning pipeline for detecting credit card fraud using Random Forest Classification and SMOTE oversampling.
+For live Demo - https://credit-card-fraud-detection-lilac.vercel.app/
 
 ## Features
 
