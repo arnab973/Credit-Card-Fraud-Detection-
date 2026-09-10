@@ -2,176 +2,673 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Card Fraud Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Credit Card Fraud Detection System</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-blue: #38bdf8;
+            --accent-purple: #818cf8;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-amber: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 12px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            max-width: 700px;
+            width: 100%;
+            padding: 0 10px;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            color: var(--accent-blue);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: clamp(1.6rem, 5vw, 2.5rem);
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: clamp(0.88rem, 2.5vw, 1.05rem);
+            line-height: 1.4;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 850px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: clamp(16px, 4vw, 28px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            width: 100%;
+        }
+
+        .card-title {
+            font-size: clamp(1.1rem, 3vw, 1.25rem);
+            font-weight: 600;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+        }
+
+        /* Preset Toolbar */
+        .preset-section {
+            margin-bottom: 20px;
+        }
+
+        .section-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 8px;
+        }
+
+        .btn-preset {
+            min-height: 44px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btn-preset:active {
+            transform: scale(0.98);
+        }
+
+        .btn-preset:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-preset.safe-preset:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .btn-preset.fraud-preset:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .btn-preset.random-preset:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        /* Form Inputs */
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 480px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+            min-height: 44px;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+        }
+
+        /* Features Grid Responsive Breakpoints */
+        .accordion-content {
+            max-height: 220px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 18px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 768px) {
+            .accordion-content {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 520px) {
+            .accordion-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .accordion-content::-webkit-scrollbar {
+            width: 5px;
+        }
+        .accordion-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .feature-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .feature-item label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .feature-item input {
+            padding: 6px 8px;
+            font-size: 0.82rem;
+            border-radius: 6px;
+            min-height: 36px;
+        }
+
+        /* Predict Button */
+        .btn-predict {
+            width: 100%;
+            min-height: 48px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
+
+        .btn-predict:active {
+            transform: scale(0.99);
+        }
+
+        .btn-predict:hover {
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Result Section */
+        .result-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
+            min-height: 320px;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5em;
+
+        .placeholder-state {
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 10px;
         }
-        .input-group {
+
+        .placeholder-icon {
+            font-size: 3rem;
+            opacity: 0.5;
+        }
+
+        .placeholder-state h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .placeholder-state p {
+            font-size: 0.9rem;
+            max-width: 300px;
+        }
+
+        .status-badge {
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: clamp(1.1rem, 4vw, 1.35rem);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 100%;
+            word-break: break-word;
+        }
+
+        .status-badge.safe {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: var(--accent-green);
+        }
+
+        .status-badge.fraud {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: var(--accent-red);
+        }
+
+        /* Meter Gauge */
+        .meter-container {
+            width: 100%;
             margin-bottom: 20px;
         }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: bold;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-            box-sizing: border-box;
-        }
-        .input-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .button-group {
+
+        .meter-header {
             display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            margin-bottom: 8px;
+            font-weight: 500;
         }
-        button {
-            flex: 1;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s;
+
+        .meter-bar-bg {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
         }
-        button:hover {
-            transform: translateY(-2px);
+
+        .meter-bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.6s ease;
         }
-        .result {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 8px;
-            font-size: 1.5em;
-            font-weight: bold;
+
+        .details-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 400px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .detail-box {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .detail-box span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .detail-box strong {
+            font-size: 1.05rem;
+            color: #fff;
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
             display: none;
+            margin-bottom: 12px;
         }
-        .safe {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .fraud {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .loading {
-            display: none;
-            margin-top: 20px;
-            font-size: 1.2em;
-            color: #667eea;
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🛡️ Credit Card Fraud Detection</h1>
 
-        <div class="input-group">
-            <label for="time">Time</label>
-            <input type="number" id="time" placeholder="Enter time (e.g., 1.0)" step="any" required>
+    <div class="header">
+        <div class="header-badge">⚡ Real-time ML Pipeline</div>
+        <h1>Credit Card Fraud Detection</h1>
+        <p>Analyze transaction characteristics using Machine Learning and SMOTE oversampling models</p>
+    </div>
+
+    <div class="app-container">
+        <!-- Input Panel -->
+        <div class="card">
+            <div class="card-title">
+                <span>Transaction Data</span>
+            </div>
+
+            <!-- Presets -->
+            <div class="preset-section">
+                <div class="section-label">Quick Test Presets</div>
+                <div class="preset-buttons">
+                    <button class="btn-preset safe-preset" onclick="loadSample('safe')">
+                        🛡️ Safe Sample
+                    </button>
+                    <button class="btn-preset fraud-preset" onclick="loadSample('fraud')">
+                        ⚠️ Fraud Sample
+                    </button>
+                    <button class="btn-preset random-preset" onclick="generateRandomV()">
+                        🎲 Randomize V1-V28
+                    </button>
+                </div>
+            </div>
+
+            <!-- Primary Inputs -->
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="time">Time (Seconds)</label>
+                    <input type="number" id="time" class="form-control" placeholder="e.g. 406.0" step="any" value="0.0">
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount ($)</label>
+                    <input type="number" id="amount" class="form-control" placeholder="e.g. 149.62" step="any" value="100.00">
+                </div>
+            </div>
+
+            <!-- PCA Features Accordion -->
+            <div class="section-label">PCA Features (V1 to V28)</div>
+            <div class="accordion-content" id="featuresGrid">
+                <!-- Features V1 to V28 injected dynamically -->
+            </div>
+
+            <button class="btn-predict" onclick="predictFraud()">Analyze Transaction</button>
         </div>
 
-        <div class="input-group">
-            <label for="amount">Amount</label>
-            <input type="number" id="amount" placeholder="Enter amount (e.g., 100.0)" step="any" required>
+        <!-- Result Panel -->
+        <div class="card result-card" id="resultCard">
+            <div id="spinner" class="spinner"></div>
+
+            <div id="placeholderState" class="placeholder-state">
+                <div class="placeholder-icon">🔍</div>
+                <h3>Awaiting Input Data</h3>
+                <p>Select a test sample or fill in transaction metrics to evaluate fraud probability.</p>
+            </div>
+
+            <div id="analysisResult" style="display: none; width: 100%;">
+                <div id="statusBadge" class="status-badge safe">
+                    Transaction Safe ✓
+                </div>
+
+                <div class="meter-container">
+                    <div class="meter-header">
+                        <span>Fraud Probability Score</span>
+                        <span id="probPercent">0.00%</span>
+                    </div>
+                    <div class="meter-bar-bg">
+                        <div id="meterFill" class="meter-bar-fill"></div>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+                    <div class="detail-box">
+                        <span>Risk Assessment</span>
+                        <strong id="riskLevel">Low Risk</strong>
+                    </div>
+                    <div class="detail-box">
+                        <span>Model Confidence</span>
+                        <strong id="confidenceScore">0.00%</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="button-group">
-            <button onclick="generateFeatures()">Auto-Generate Hidden Features (V1–V28)</button>
-            <button onclick="predictFraud()">Predict Fraud</button>
-        </div>
-
-        <div id="loading" class="loading">Processing...</div>
-
-        <div id="result" class="result"></div>
     </div>
 
     <script>
-        let features = {};
+        // Store current V1-V28 values
+        let vFeatures = {};
 
-        async function generateFeatures() {
-            try {
-                document.getElementById('loading').style.display = 'block';
-                const response = await fetch('/generate_features');
-                features = await response.json();
-                alert('Hidden features (V1-V28) have been auto-generated successfully!');
-            } catch (error) {
-                alert('Error generating features: ' + error.message);
-            } finally {
-                document.getElementById('loading').style.display = 'none';
+        // Generate V1..V28 inputs dynamically
+        function initFeatureGrid() {
+            const grid = document.getElementById('featuresGrid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 28; i++) {
+                vFeatures[`V${i}`] = 0.0;
+                const div = document.createElement('div');
+                div.className = 'feature-item';
+                div.innerHTML = `
+                    <label>V${i}</label>
+                    <input type="number" step="any" class="form-control" id="v_input_${i}" value="0.00" onchange="vFeatures['V${i}'] = parseFloat(this.value) || 0.0">
+                `;
+                grid.appendChild(div);
             }
         }
 
+        // Set form values from dataset sample
+        async function loadSample(type) {
+            try {
+                const res = await fetch(`/sample_data/${type}`);
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const data = json.data;
+                    document.getElementById('time').value = data.Time;
+                    document.getElementById('amount').value = data.Amount;
+
+                    for (let i = 1; i <= 28; i++) {
+                        const val = data[`V${i}`];
+                        vFeatures[`V${i}`] = val;
+                        const el = document.getElementById(`v_input_${i}`);
+                        if (el) el.value = val.toFixed(4);
+                    }
+                    // Auto run prediction on preset click
+                    predictFraud();
+                }
+            } catch (err) {
+                alert('Failed to load sample data: ' + err.message);
+            }
+        }
+
+        // Auto-generate random Gaussian V1..V28
+        async function generateRandomV() {
+            try {
+                const res = await fetch('/generate_features');
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const data = json.data;
+                    for (let i = 1; i <= 28; i++) {
+                        const val = data[`V${i}`];
+                        vFeatures[`V${i}`] = val;
+                        const el = document.getElementById(`v_input_${i}`);
+                        if (el) el.value = val.toFixed(4);
+                    }
+                }
+            } catch (err) {
+                alert('Error generating random features: ' + err.message);
+            }
+        }
+
+        // Perform fraud prediction API call
         async function predictFraud() {
             const time = parseFloat(document.getElementById('time').value);
             const amount = parseFloat(document.getElementById('amount').value);
 
             if (isNaN(time) || isNaN(amount)) {
-                alert('Please enter valid Time and Amount.');
+                alert('Please enter valid numerical values for Time and Amount.');
                 return;
             }
 
-            if (Object.keys(features).length !== 28) {
-                alert('Please generate the hidden features first.');
-                return;
+            // Sync features from inputs in case user manually typed
+            for (let i = 1; i <= 28; i++) {
+                const el = document.getElementById(`v_input_${i}`);
+                if (el) {
+                    vFeatures[`V${i}`] = parseFloat(el.value) || 0.0;
+                }
             }
 
-            const data = { Time: time, Amount: amount, ...features };
+            const payload = { Time: time, Amount: amount, ...vFeatures };
+
+            const spinner = document.getElementById('spinner');
+            const placeholder = document.getElementById('placeholderState');
+            const analysisResult = document.getElementById('analysisResult');
+
+            placeholder.style.display = 'none';
+            analysisResult.style.display = 'none';
+            spinner.style.display = 'block';
 
             try {
-                document.getElementById('loading').style.display = 'block';
-                const response = await fetch('/predict', {
+                const res = await fetch('/predict', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
-                const result = await response.json();
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerText = result.result;
-                resultDiv.className = 'result ' + (result.result.includes('Fraud') ? 'fraud' : 'safe');
-                resultDiv.style.display = 'block';
-            } catch (error) {
-                alert('Error predicting fraud: ' + error.message);
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    const isFraud = data.is_fraud;
+                    const fraudProb = data.fraud_probability;
+                    const safeProb = data.safe_probability;
+
+                    const statusBadge = document.getElementById('statusBadge');
+                    statusBadge.className = 'status-badge ' + (isFraud ? 'fraud' : 'safe');
+                    statusBadge.innerHTML = isFraud ? '⚠️ Fraud Detected' : '✓ Transaction Safe';
+
+                    document.getElementById('probPercent').innerText = `${fraudProb.toFixed(2)}%`;
+                    
+                    const meterFill = document.getElementById('meterFill');
+                    meterFill.style.width = `${fraudProb}%`;
+                    meterFill.style.backgroundColor = isFraud ? '#ef4444' : '#10b981';
+
+                    document.getElementById('riskLevel').innerText = data.risk_level;
+                    document.getElementById('confidenceScore').innerText = `${(isFraud ? fraudProb : safeProb).toFixed(1)}%`;
+
+                    analysisResult.style.display = 'block';
+                } else {
+                    alert('Prediction Error: ' + (data.error || 'Unknown error'));
+                    placeholder.style.display = 'flex';
+                }
+            } catch (err) {
+                alert('Error submitting transaction: ' + err.message);
+                placeholder.style.display = 'flex';
             } finally {
-                document.getElementById('loading').style.display = 'none';
+                spinner.style.display = 'none';
             }
         }
+
+        // Initialize UI
+        window.addEventListener('DOMContentLoaded', () => {
+            initFeatureGrid();
+        });
     </script>
 </body>
 </html>

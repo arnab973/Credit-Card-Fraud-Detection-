@@ -1,49 +1,48 @@
-# Credit Card Fraud Detection
+# Credit Card Fraud Detection System
 
-This is a Flask-based web application for detecting credit card fraud using machine learning.
+This is a modern Flask-based web application and Machine Learning pipeline for detecting credit card fraud using Random Forest Classification and SMOTE oversampling.
 
 ## Features
 
-- Web interface for inputting transaction details
-- Machine learning model for fraud prediction
-- REST API endpoints for integration
+- **Modern Glassmorphism Dashboard**: Sleek dark-themed UI with interactive risk meters, status indicators, and probability scoring.
+- **Quick Test Presets**: Built-in sample buttons (`Safe Sample` & `Fraud Sample`) extracted from authentic `creditcard.csv` transactions for instant model validation.
+- **Random Feature Generator**: Synthetic Gaussian noise generator for PCA features (V1–V28).
+- **Fraud Risk Assessment**: Computes class predictions, fraud/safe probability percentages, and risk levels (`Low Risk`, `Moderate Risk`, `High Risk`).
+- **REST API Endpoints**: Modular backend routes for external application integration.
 
-## Installation
+## Installation & Setup
 
-1. Clone the repository:
-   ```
+1. **Clone the repository:**
+   ```bash
    git clone https://github.com/arnab973/Credit-Card-Fraud-Detection-.git
    cd Credit-Card-Fraud-Detection-
    ```
 
-2. Install dependencies:
-   ```
+2. **Install dependencies:**
+   ```bash
    pip install -r requirements.txt
    ```
 
-## Usage
+## Running the Application
 
-To start the application, run:
-```
+Start the Flask application server:
+```bash
 python app.py
 ```
 
-Or using Python launcher:
-```
-py app.py
-```
-
-The application will be available at http://localhost:5000
+The application will be accessible at: `http://localhost:5000`
 
 ## API Endpoints
 
-- `GET /`: Home page
-- `GET /generate_features`: Generate random features for V1-V28
-- `POST /predict`: Predict fraud based on transaction data
+- `GET /` : Renders the web interface dashboard.
+- `GET /sample_data/<type>` : Returns sample transaction feature vectors (`safe` or `fraud`).
+- `GET /generate_features` : Generates random Gaussian features for V1–V28.
+- `POST /predict` : Expects JSON payload with `Time`, `V1`..`V28`, and `Amount`. Returns prediction class, probability percentages, and risk level.
 
-## Model
+## Model Details
 
-The model is trained using RandomForestClassifier on the credit card dataset with SMOTE for handling imbalance.
+- **Dataset**: Kaggle Credit Card Fraud Detection dataset (284,807 transactions).
+- **Algorithm**: `RandomForestClassifier` trained with `SMOTE` oversampling to address severe class imbalance.
 
 ## License
 
